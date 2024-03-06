@@ -25,4 +25,4 @@ class Career(models.Model):
     
     class Meta:
         verbose_name = 'carrera',
-        verbose_name_plural = 'carreras',
+        verbose_name_plural = 'Carreras',
