@@ -16,28 +16,35 @@ def home(request):
         return render(request, 'exam/home.html', {'user':user})
 
 @login_required
-def question(request, m_id, q_id = 1 ):
+def question(request, m_id, q_id = 1):
     exam = request.user.exam
+    if q_id == 0 or m_id == 0:
+            return redirect('exam:home')
+    
     if request.method == 'POST':
         answer = request.POST['answer']
+        
         questions = exam.breakdown_set.filter(question__module_id=m_id)
         question = questions[q_id - 1]
         question.answer = answer
         question.save()
+        
         return redirect('exam:question', m_id, q_id + 1)
 
-    
     try:
         questions = exam.breakdown_set.filter(question__module_id=m_id)
         question = questions[q_id - 1].question
-        answer = questions[q_id -1].answer
+        answer = questions[q_id - 1].answer
         return render(request, 'exam/question.html', {
             'question': question,
             'correct': answer,
             'm_id': m_id,
             'q_id': q_id,
-            })
+        })
+    
     except IndexError:
+        exam.compute_score_by_module(m_id = 1)
+        exam.compute_score()
         return redirect('exam:home')
 
 
